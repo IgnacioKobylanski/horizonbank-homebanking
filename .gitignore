@@ -1,0 +1,18 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Secrets y entorno
+.env
+.env.*
+!.env.example
+
+# Frontend (para cuando llegue Angular)
+node_modules/
+dist/
+.angular/
+
+# OS
+.DS_Store
+Thumbs.db
