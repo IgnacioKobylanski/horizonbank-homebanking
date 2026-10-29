@@ -21,13 +21,14 @@ public class JwtService {
     private final JwtEncoder jwtEncoder;
     private final JwtProperties properties;
 
-    public String generateAccessToken(UUID userId, Collection<String> roles) {
+    public String generateAccessToken(UUID userId, UUID customerId, Collection<String> roles) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(ISSUER)
                 .subject(userId.toString())
                 .issuedAt(now)
                 .expiresAt(now.plus(properties.accessTokenTtl()))
+                .claim("customer_id", customerId.toString())
                 .claim("roles", roles)
                 .build();
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();

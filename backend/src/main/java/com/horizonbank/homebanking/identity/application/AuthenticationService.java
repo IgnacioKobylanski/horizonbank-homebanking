@@ -65,7 +65,7 @@ public class AuthenticationService {
         Instant now = Instant.now();
         List<String> roles = user.getRoles().stream().map(RoleEntity::getName).sorted().toList();
 
-        String accessToken = jwtService.generateAccessToken(user.getId(), roles);
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getCustomer().getId(), roles);
         String refreshToken = refreshTokenCodec.generate();
 
         refreshTokens.save(new RefreshTokenEntity(
