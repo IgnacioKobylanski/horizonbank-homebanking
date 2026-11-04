@@ -15,4 +15,6 @@ public interface AccountJpaRepository extends JpaRepository<AccountEntity, UUID>
     boolean existsByAccountNumber(String accountNumber);
 
     boolean existsByAliasIgnoreCase(String alias);
+
+    Optional<AccountEntity> findByAliasIgnoreCase(String alias);
 }

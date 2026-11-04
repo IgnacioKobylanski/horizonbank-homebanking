@@ -37,4 +37,8 @@ public class AccountBalanceEntity {
     void touch() {
         updatedAt = Instant.now();
     }
+
+    public void apply(java.math.BigDecimal delta) {
+        this.balance = this.balance.add(delta);
+    }
 }
