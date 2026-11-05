@@ -1,11 +1,16 @@
 package com.horizonbank.homebanking;
 
-import org.springframework.boot.SpringApplication;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
-public class TestHomebankingApplication {
+@Import(TestcontainersConfiguration.class)
+@SpringBootTest
+@ActiveProfiles("test")
+class HomebankingApplicationTests {
 
-	public static void main(String[] args) {
-		SpringApplication.from(HomebankingApplication::main).with(TestcontainersConfiguration.class).run(args);
+	@Test
+	void contextLoads() {
 	}
-
 }

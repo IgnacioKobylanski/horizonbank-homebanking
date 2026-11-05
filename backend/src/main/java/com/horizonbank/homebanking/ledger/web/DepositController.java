@@ -1,7 +1,7 @@
 package com.horizonbank.homebanking.ledger.web;
 
 import com.horizonbank.homebanking.ledger.application.LedgerService;
-import com.horizonbank.homebanking.shared.error.UnauthorizedException;
+import com.horizonbank.homebanking.shared.security.AuthenticatedCustomer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,12 +27,8 @@ public class DepositController {
     public ResponseEntity<DepositResponse> deposit(@AuthenticationPrincipal Jwt jwt,
                                                    @PathVariable UUID accountId,
                                                    @Valid @RequestBody DepositRequest request) {
-        String claim = jwt.getClaimAsString("customer_id");
-        if (claim == null) {
-            throw new UnauthorizedException("Invalid token");
-        }
         DepositResponse body = DepositResponse.from(
-                ledgerService.deposit(UUID.fromString(claim), accountId, request.amount()));
+                ledgerService.deposit(AuthenticatedCustomer.idFrom(jwt), accountId, request.amount()));
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 }
