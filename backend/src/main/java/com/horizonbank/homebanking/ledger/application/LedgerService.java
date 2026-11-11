@@ -3,6 +3,7 @@ package com.horizonbank.homebanking.ledger.application;
 import com.horizonbank.homebanking.accounts.AccountsApi;
 import com.horizonbank.homebanking.accounts.AccountsApi.AccountRef;
 import com.horizonbank.homebanking.accounts.AccountsApi.Movement;
+import com.horizonbank.homebanking.ledger.LedgerApi;
 import com.horizonbank.homebanking.ledger.domain.EntryDirection;
 import com.horizonbank.homebanking.ledger.domain.LedgerTransactionType;
 import com.horizonbank.homebanking.ledger.infrastructure.persistence.LedgerEntryEntity;
@@ -12,6 +13,7 @@ import com.horizonbank.homebanking.ledger.infrastructure.persistence.LedgerTrans
 import com.horizonbank.homebanking.shared.error.BusinessRuleException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -21,7 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class LedgerService {
+public class LedgerService implements LedgerApi {
 
     private static final BigDecimal MAX_DEPOSIT = new BigDecimal("1000000");
 
@@ -52,5 +54,20 @@ public class LedgerService {
                 new Movement(target.id(), amount)));
 
         return new DepositReceipt(transaction.getId(), target.id(), amount, newBalances.get(target.id()));
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    public UUID recordTransfer(UUID sourceAccountId, UUID destinationAccountId,
+                               BigDecimal amount, String description) {
+        LedgerTransactionEntity transaction = transactions.save(
+                new LedgerTransactionEntity(LedgerTransactionType.TRANSFER, description));
+        entries.saveAll(List.of(
+                new LedgerEntryEntity(transaction.getId(), sourceAccountId, EntryDirection.DEBIT, amount),
+                new LedgerEntryEntity(transaction.getId(), destinationAccountId, EntryDirection.CREDIT, amount)));
+        accountsApi.applyMovements(List.of(
+                new Movement(sourceAccountId, amount.negate()),
+                new Movement(destinationAccountId, amount)));
+        return transaction.getId();
     }
 }

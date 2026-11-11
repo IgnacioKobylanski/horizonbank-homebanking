@@ -73,4 +73,15 @@ public class AccountsApiImpl implements AccountsApi {
         }
         return result;
     }
+
+    @Override
+    public AccountRef findActiveByNumberOrAlias(String identifier) {
+        String value = identifier.trim();
+        AccountEntity account = accounts.findByAccountNumber(value)
+                .or(() -> accounts.findByAliasIgnoreCase(value))
+                .filter(candidate -> candidate.getType() != AccountType.SYSTEM)
+                .filter(candidate -> candidate.getStatus() == AccountStatus.ACTIVE)
+                .orElseThrow(() -> new NotFoundException("Destination account not found"));
+        return new AccountRef(account.getId(), account.getCurrencyCode());
+    }
 }

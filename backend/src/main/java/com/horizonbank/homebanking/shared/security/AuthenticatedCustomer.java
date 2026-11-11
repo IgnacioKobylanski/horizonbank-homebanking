@@ -17,4 +17,8 @@ public final class AuthenticatedCustomer {
         }
         return UUID.fromString(claim);
     }
+
+    public static UUID userIdFrom(Jwt jwt) {
+        return UUID.fromString(jwt.getSubject());
+    }
 }

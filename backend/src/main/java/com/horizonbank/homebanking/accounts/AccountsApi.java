@@ -17,5 +17,7 @@ public interface AccountsApi {
 
     AccountRef systemCashAccount(String currencyCode);
 
+    AccountRef findActiveByNumberOrAlias(String identifier);
+
     Map<UUID, BigDecimal> applyMovements(List<Movement> movements);
 }
