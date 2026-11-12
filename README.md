@@ -53,6 +53,7 @@ Tests also need Docker (they start a throwaway Postgres):
 | GET | `/api/v1/accounts` | List own accounts |
 | GET | `/api/v1/accounts/{id}` | Account detail (404 if not owned) |
 | POST | `/api/v1/accounts/{id}/deposits` | Simulated deposit |
+| POST | `/api/v1/transfers` | Transfer between accounts (requires `Idempotency-Key` header) |
 
 ## Design decisions
 
@@ -62,6 +63,7 @@ Tests also need Docker (they start a throwaway Postgres):
 - **Refresh token rotation with reuse detection.** Only a SHA-256 hash of each token is stored. Reusing a revoked token revokes all of the user's tokens.
 - **Money as `NUMERIC(19,4)` / `BigDecimal`**, never floating point.
 - **Ownership checks return 404**, not 403, so account ids can't be probed.
+- **Idempotent transfers.** The `Idempotency-Key` is claimed with `INSERT ... ON CONFLICT DO NOTHING` inside the same transaction as the transfer, so concurrent retries serialize and a failed transfer releases its key. Reusing a key with a different payload returns 422.
 
 ## Known limitations
 
@@ -70,7 +72,7 @@ Tests also need Docker (they start a throwaway Postgres):
 
 ## Roadmap
 
-- [ ] Transfers with `Idempotency-Key`
+- [X] Transfers with `Idempotency-Key`
 - [ ] Audit log
 - [ ] Angular frontend
 - [ ] CI with GitHub Actions
