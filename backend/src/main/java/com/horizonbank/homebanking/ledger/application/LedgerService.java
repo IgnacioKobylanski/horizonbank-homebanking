@@ -10,6 +10,7 @@ import com.horizonbank.homebanking.ledger.infrastructure.persistence.LedgerEntry
 import com.horizonbank.homebanking.ledger.infrastructure.persistence.LedgerEntryJpaRepository;
 import com.horizonbank.homebanking.ledger.infrastructure.persistence.LedgerTransactionEntity;
 import com.horizonbank.homebanking.ledger.infrastructure.persistence.LedgerTransactionJpaRepository;
+import com.horizonbank.homebanking.shared.audit.AuditLogger;
 import com.horizonbank.homebanking.shared.error.BusinessRuleException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,10 @@ public class LedgerService implements LedgerApi {
     private final AccountsApi accountsApi;
     private final LedgerTransactionJpaRepository transactions;
     private final LedgerEntryJpaRepository entries;
+    private final AuditLogger audit;
 
     @Transactional
-    public DepositReceipt deposit(UUID customerId, UUID accountId, BigDecimal amount) {
+    public DepositReceipt deposit(UUID userId, UUID customerId, UUID accountId, BigDecimal amount) {
         if (amount.signum() <= 0 || amount.stripTrailingZeros().scale() > 2) {
             throw new BusinessRuleException("Invalid amount");
         }
@@ -53,6 +55,9 @@ public class LedgerService implements LedgerApi {
                 new Movement(cash.id(), amount.negate()),
                 new Movement(target.id(), amount)));
 
+
+        audit.log(userId, "DEPOSIT_CREATED", "LEDGER_TRANSACTION", transaction.getId().toString(),
+                Map.of("accountId", target.id().toString(), "amount", amount.toPlainString()));
         return new DepositReceipt(transaction.getId(), target.id(), amount, newBalances.get(target.id()));
     }
 

@@ -6,6 +6,7 @@ import com.horizonbank.homebanking.identity.infrastructure.persistence.RoleEntit
 import com.horizonbank.homebanking.identity.infrastructure.persistence.RoleJpaRepository;
 import com.horizonbank.homebanking.identity.infrastructure.persistence.UserEntity;
 import com.horizonbank.homebanking.identity.infrastructure.persistence.UserJpaRepository;
+import com.horizonbank.homebanking.shared.audit.AuditLogger;
 import com.horizonbank.homebanking.shared.error.BusinessRuleException;
 import com.horizonbank.homebanking.shared.error.ConflictException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class RegisterUserService {
     private final UserJpaRepository users;
     private final RoleJpaRepository roles;
     private final PasswordEncoder passwordEncoder;
+    private final AuditLogger audit;
 
     @Transactional
     public RegisteredUser register(RegisterUserCommand command) {
@@ -58,6 +61,7 @@ public class RegisterUserService {
         UserEntity user = new UserEntity(customer, email, passwordEncoder.encode(command.password()));
         user.addRole(customerRole);
         users.save(user);
+        audit.log(user.getId(), "USER_REGISTERED", "USER", user.getId().toString(), Map.of());
 
         return new RegisteredUser(user.getId(), customer.getId(), email);
     }

@@ -28,7 +28,11 @@ public class DepositController {
                                                    @PathVariable UUID accountId,
                                                    @Valid @RequestBody DepositRequest request) {
         DepositResponse body = DepositResponse.from(
-                ledgerService.deposit(AuthenticatedCustomer.idFrom(jwt), accountId, request.amount()));
+                ledgerService.deposit(
+                        AuthenticatedCustomer.userIdFrom(jwt),
+                        AuthenticatedCustomer.idFrom(jwt),
+                        accountId,
+                        request.amount()));
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 }

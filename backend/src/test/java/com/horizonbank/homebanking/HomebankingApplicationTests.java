@@ -70,7 +70,7 @@ class DepositConcurrencyTest {
 		for (int i = 0; i < DEPOSITS; i++) {
 			futures.add(pool.submit(() -> {
 				start.await();
-				return ledgerService.deposit(user.customerId(), account.id(), AMOUNT);
+				return ledgerService.deposit(user.userId(), user.customerId(), account.id(), AMOUNT);
 			}));
 		}
 		start.countDown();
