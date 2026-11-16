@@ -73,7 +73,6 @@ Tests also need Docker (they start a throwaway Postgres):
 ## Roadmap
 
 - [X] Transfers with `Idempotency-Key`
-- [ ] Audit log
+- [X] Audit log
 - [ ] Angular frontend
-- [ ] CI with GitHub Actions
 - [ ] Architecture diagram and ADRs

@@ -19,5 +19,7 @@ public interface AccountsApi {
 
     AccountRef findActiveByNumberOrAlias(String identifier);
 
+    AccountRef requireOwned(UUID customerId, UUID accountId);
+
     Map<UUID, BigDecimal> applyMovements(List<Movement> movements);
 }

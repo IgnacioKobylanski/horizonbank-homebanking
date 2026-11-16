@@ -84,4 +84,11 @@ public class AccountsApiImpl implements AccountsApi {
                 .orElseThrow(() -> new NotFoundException("Destination account not found"));
         return new AccountRef(account.getId(), account.getCurrencyCode());
     }
+
+    @Override
+    public AccountRef requireOwned(UUID customerId, UUID accountId) {
+        AccountEntity account = accounts.findByIdAndCustomerId(accountId, customerId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+        return new AccountRef(account.getId(), account.getCurrencyCode());
+    }
 }

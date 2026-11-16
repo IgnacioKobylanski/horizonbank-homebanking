@@ -60,7 +60,7 @@ public class RegisterUserService {
 
         UserEntity user = new UserEntity(customer, email, passwordEncoder.encode(command.password()));
         user.addRole(customerRole);
-        users.save(user);
+        users.saveAndFlush(user);
         audit.log(user.getId(), "USER_REGISTERED", "USER", user.getId().toString(), Map.of());
 
         return new RegisteredUser(user.getId(), customer.getId(), email);
